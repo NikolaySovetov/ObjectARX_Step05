@@ -6,9 +6,9 @@
 #pragma once
 #define STEP03_REF_MODULE
 
-/*#ifndef
+#ifndef _ALLOW_RTCc_IN_STL
 #define _ALLOW_RTCc_IN_STL
-#endif*/
+#endif
 
 #pragma pack(push, 8)
 #pragma warning(disable : 4786 4996)

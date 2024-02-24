@@ -1,11 +1,14 @@
 #pragma once
-#include "tchar.h"
+#include "StdAfx.h"
 
 class UtilityCreator {
+private:
+	Acad::ErrorStatus mErrStat;
 
 public:
-	void CreateEmployee() const;
-	void CreateLayer(const ACHAR* layerName) const;
+	void CreateLayer(const TCHAR* layerName, AcDbObjectId& layerId);
+	void CreateBlockRecord(const TCHAR* blockName) const;
+
 };
 
 
