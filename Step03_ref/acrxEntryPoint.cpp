@@ -37,13 +37,14 @@ public:
 	virtual void RegisterServerComponents() {
 	}
 
-	static void Step03_createLayer() {
+	static void Step03_createLayer() 
+	{
 		AcDbObjectId layerId = AcDbObjectId::kNull;
-		const TCHAR* layerName{ L"USER" };
+		const ACHAR* layerName{ L"USER" };
 		
 		UtilityCreator uc;
-		uc.CreateLayer(layerName, layerId);
-		if (layerId != AcDbObjectId::kNull) {
+
+		if (uc.CreateLayer(layerName, layerId) == Acad::eOk) {
 			acutPrintf(_T("\nlayer \"%s\" with ID \"%d\" created"), layerName, layerId);
 		}
 	}
