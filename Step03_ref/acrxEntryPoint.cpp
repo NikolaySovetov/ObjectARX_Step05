@@ -7,12 +7,15 @@
 
 //-----------------------------------------------------------------------------
 //----- ObjectARX EntryPoint
-class CStep03_refApp : public AcRxArxApp {
+class CStep03_refApp : public AcRxArxApp
+{
 
 public:
-	CStep03_refApp() : AcRxArxApp() {}
+	CStep03_refApp() : AcRxArxApp()
+	{}
 
-	virtual AcRx::AppRetCode On_kInitAppMsg(void* pkt) {
+	virtual AcRx::AppRetCode On_kInitAppMsg(void* pkt)
+	{
 		// TODO: Load dependencies here
 
 		// You *must* call On_kInitAppMsg here
@@ -23,7 +26,8 @@ public:
 		return (retCode);
 	}
 
-	virtual AcRx::AppRetCode On_kUnloadAppMsg(void* pkt) {
+	virtual AcRx::AppRetCode On_kUnloadAppMsg(void* pkt)
+	{
 		// TODO: Add your code here
 
 		// You *must* call On_kUnloadAppMsg here
@@ -34,25 +38,46 @@ public:
 		return (retCode);
 	}
 
-	virtual void RegisterServerComponents() {
+	virtual void RegisterServerComponents()
+	{
 	}
 
-	static void Step03_createLayer() {
-		AcDbObjectId layerId = AcDbObjectId::kNull;
-		const TCHAR* layerName{ L"USER" };
-		
+	static void Step03_createLayer()
+	{
+		AcDbObjectId layerId;
+		const TCHAR* layerName(L"USER");
+
 		UtilityCreator uc;
-		uc.CreateLayer(layerName, layerId);
-		if (layerId != AcDbObjectId::kNull) {
-			acutPrintf(_T("\nlayer \"%s\" with ID \"%d\" created"), layerName, layerId);
+		if (uc.CreateLayer(layerName, layerId) == Acad::eOk)
+		{
+			applyCurDwgLayerTableChanges();
+			acutPrintf(_T("\nLayer \"%s\" created"), layerName);
 		}
 	}
+
+	static void Step03_createBlock()
+	{
+		const TCHAR* blockName{ L"Employee" };
+		UtilityCreator uc;
+		Acad::ErrorStatus es;
+
+		if ((es = uc.CreateBlockRecord(blockName)) == Acad::eOk)
+		{
+			acutPrintf(_T("\nBlock Record \"%s\" created"), blockName);
+		}
+		else
+		{
+			acutPrintf(_T("\nCan't create \"%s\""), blockName);
+		}
+	}
+
 };
 
 //-----------------------------------------------------------------------------
 IMPLEMENT_ARX_ENTRYPOINT(CStep03_refApp)
 
 ACED_ARXCOMMAND_ENTRY_AUTO(CStep03_refApp, Step03, _createLayer, createLayer, ACRX_CMD_TRANSPARENT, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CStep03_refApp, Step03, _createBlock, createBlock, ACRX_CMD_TRANSPARENT, NULL)
 
 
 
