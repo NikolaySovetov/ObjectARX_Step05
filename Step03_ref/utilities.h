@@ -26,8 +26,12 @@ public:
 
 	Acad::ErrorStatus
 		CreateLayer(const TCHAR* layerName, AcDbObjectId& layerId);
+
 	Acad::ErrorStatus
 		CreateBlockRecord(const TCHAR* blockName);
+
+	Acad::ErrorStatus
+		SetLayer(const TCHAR* blockName, const TCHAR* layerName);
 };
 
 

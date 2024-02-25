@@ -83,11 +83,88 @@ Acad::ErrorStatus UtilityCreator::CreateBlockRecord(const TCHAR* blockName)
 	return mErrStat;
 }
 
+Acad::ErrorStatus UtilityCreator::SetLayer(const TCHAR* blockName, const TCHAR* layerName)
+{
+	AcDbBlockTable* pBTable;
+
+	// 1 Open the block table of the current working database
+	if ((mErrStat =
+		acdbHostApplicationServices()->workingDatabase()->getBlockTable(pBTable, AcDb::kForRead)) !=
+		Acad::eOk)
+	{
+		acedAlert(L"\nCan't open Block Table.");
+		return mErrStat;
+	}
+
+	// 2 Get the MODEL_SPACE block table record
+	AcDbBlockTableRecord* pBTRecord;
+	mErrStat = pBTable->getAt(ACDB_MODEL_SPACE, pBTRecord, AcDb::kForRead);
+	pBTable->close();
+
+	if (mErrStat != Acad::eOk)
+	{
+		acedAlert(L"\nCan't get Block Table Record.");
+		return mErrStat;
+	}
+
+	// 3 Obtain a block table record iterator
+	AcDbBlockTableRecordIterator* pBTRIterator;
+	mErrStat = pBTRecord->newIterator(pBTRIterator, Adesk::kTrue, Adesk::kTrue);
+	pBTRecord->close();
+
+	if (mErrStat != Acad::eOk)
+	{
+		acedAlert(L"\nCan't obtain Block Table Record Iterator.");
+		return mErrStat;
+	}
+
+	// 4 Itrerate through the MODEL_SPACE
+	TCHAR* currentBlockName;
+	AcDbEntity* pEntity;
+	AcDbObjectId blockId;
+
+	for (pBTRIterator->start(); !pBTRIterator->done(); pBTRIterator->step())
+	{
+		// 5 Open object for read
+		if (pBTRIterator->getEntity(pEntity, AcDb::kForRead, Adesk::kFalse) != Acad::eOk)
+		{
+			acedAlert(L"\nCan't open object.");
+			continue;
+		}
+
+		// 6 Check if the entity is a block reference
+		if (pEntity->isA() != AcDbBlockReference::desc())
+		{
+			pEntity->close();
+			continue;
+		}
+
+		// 7 Obtain the block table record of the reference and check it name
+		blockId = (AcDbBlockReference::cast(pEntity))->blockTableRecord();
+
+		if (acdbOpenObject(/*(AcDbObject*&)*/pBTRecord, blockId, AcDb::kForRead) == Acad::eOk) 
+		{
+			pBTRecord->getName(currentBlockName);
+			if (_tcscmp(currentBlockName, blockName) == 0) 
+			{
+				if (pEntity->upgradeOpen() == Acad::eOk)
+					pEntity->setLayer(layerName);
+			}
+			pBTRecord->close();
+			acdbFree(currentBlockName);
+		}
+		pEntity->close();
+	}
+	
+	return mErrStat;
+}
+
+//------------------------------------------------------------------------------
 Acad::ErrorStatus Employee::AddEmployee(AcDbBlockTableRecord* pBTRecord)
 {
 	AcDbCircle* pFace = new AcDbCircle(AcGePoint3d::kOrigin, AcGeVector3d::kZAxis, 1.0);
-	AcDbCircle* pLeftEye = new AcDbCircle(AcGePoint3d( 0.33, 0.25, 0 ), AcGeVector3d::kZAxis, 0.1);
-	AcDbCircle* pRightEye = new AcDbCircle(AcGePoint3d( -0.33, 0.25, 0 ), AcGeVector3d::kZAxis, 0.1);
+	AcDbCircle* pLeftEye = new AcDbCircle(AcGePoint3d(0.33, 0.25, 0), AcGeVector3d::kZAxis, 0.1);
+	AcDbCircle* pRightEye = new AcDbCircle(AcGePoint3d(-0.33, 0.25, 0), AcGeVector3d::kZAxis, 0.1);
 	AcDbArc* pMouth = new AcDbArc({ 0.0, 0.5, 0 }, AcGeVector3d::kZAxis, 1.0,
 		(pi + (pi * 0.3)), (pi + (pi * 0.7)));
 
@@ -96,12 +173,7 @@ Acad::ErrorStatus Employee::AddEmployee(AcDbBlockTableRecord* pBTRecord)
 	pRightEye->setColorIndex(5);
 	pMouth->setColorIndex(1);
 
-	pBTRecord->appendAcDbEntity(pFace);
-	pBTRecord->appendAcDbEntity(pLeftEye);
-	pBTRecord->appendAcDbEntity(pRightEye);
-	pBTRecord->appendAcDbEntity(pMouth);
-
-	//AddEntities(pBTRecord, { pFace, pLeftEye, pRightEye, pMouth });
+	AddEntities(pBTRecord, { pFace, pLeftEye, pRightEye, pMouth });
 
 	return mErrStat;
 }
@@ -111,12 +183,13 @@ void Employee::AddEntities(AcDbBlockTableRecord* pBTRecord,
 {
 	size_t i{ 0 };
 
-	for (const auto item : Entities)
+	for (const auto ent : Entities)
 	{
-		if ((mErrStat = pBTRecord->appendAcDbEntity(item)) != Acad::eOk)
+		if ((mErrStat = pBTRecord->appendAcDbEntity(ent)) != Acad::eOk)
 		{
 			break;
 		}
+		ent->close();
 		++i;
 	}
 

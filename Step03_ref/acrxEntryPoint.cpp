@@ -9,7 +9,6 @@
 //----- ObjectARX EntryPoint
 class CStep03_refApp : public AcRxArxApp
 {
-
 public:
 	CStep03_refApp() : AcRxArxApp()
 	{}
@@ -59,9 +58,8 @@ public:
 	{
 		const TCHAR* blockName{ L"Employee" };
 		UtilityCreator uc;
-		Acad::ErrorStatus es;
 
-		if ((es = uc.CreateBlockRecord(blockName)) == Acad::eOk)
+		if (uc.CreateBlockRecord(blockName) == Acad::eOk)
 		{
 			acutPrintf(_T("\nBlock Record \"%s\" created"), blockName);
 		}
@@ -71,6 +69,17 @@ public:
 		}
 	}
 
+	static void Step03_setLayer()
+	{
+		const TCHAR* blockName{ L"Employee" };
+		const TCHAR* layerName{ L"USER" };
+		UtilityCreator uc;
+
+		if (uc.SetLayer(blockName, layerName) == Acad::eOk)
+		{
+			acutPrintf(_T("\nSet Layer \"%s\" for \"%s\"."), layerName, blockName);
+		}
+	}
 };
 
 //-----------------------------------------------------------------------------
@@ -78,6 +87,7 @@ IMPLEMENT_ARX_ENTRYPOINT(CStep03_refApp)
 
 ACED_ARXCOMMAND_ENTRY_AUTO(CStep03_refApp, Step03, _createLayer, createLayer, ACRX_CMD_TRANSPARENT, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CStep03_refApp, Step03, _createBlock, createBlock, ACRX_CMD_TRANSPARENT, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CStep03_refApp, Step03, _setLayer, setLayer, ACRX_CMD_TRANSPARENT, NULL)
 
 
 
