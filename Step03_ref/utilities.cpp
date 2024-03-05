@@ -49,6 +49,7 @@ Acad::ErrorStatus UtilityCreator::CreateBlockRecord(const TCHAR* blockName)
 		{
 			return Acad::eDuplicateKey;
 		}
+
 		// 3 Create new Block Table Record
 		pBTRecord = new AcDbBlockTableRecord;
 		pBTRecord->setName(blockName);
