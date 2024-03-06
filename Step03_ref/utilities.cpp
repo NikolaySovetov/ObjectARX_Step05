@@ -210,9 +210,21 @@ void Employee::AddEntities(AcDbBlockTableRecord* pBTRecord,
 }
 
 //-------------	Step_05 -------------
-ExtensionDictionary::ExtensionDictionary() {
-	m_initFlag = false;
+AcDbDictionary* Dictionary::Get(AcDb::OpenMode mode) {
 
+	if (!m_pDictionary) {
+		return nullptr;
+	}
+
+	if (mode == AcDb::kForRead) {
+		return m_pDictionary;
+	}
+
+	m_pDictionary->upgradeOpen();
+	return m_pDictionary;
+}
+
+ExtensionDict::ExtensionDict() {
 	AcDbObjectId objectId;
 	AcDbObject* pObject;
 
@@ -241,25 +253,9 @@ ExtensionDictionary::ExtensionDictionary() {
 
 	if (m_pDictionary->isErased())
 		m_pDictionary->erase(Adesk::kFalse);
-
-	m_initFlag = true;
 }
 
-AcDbDictionary* ExtensionDictionary::Get(AcDb::OpenMode mode) {
-
-	if (!m_initFlag) {
-		return nullptr;
-	}
-
-	if (mode == AcDb::kForRead) {
-		return m_pDictionary;
-	}
-
-	m_pDictionary->upgradeOpen();
-	return m_pDictionary;
-}
-
-ExtensionDictionary::~ExtensionDictionary() {
+ExtensionDict::~ExtensionDict() {
 	try {
 		if (m_pDictionary) {
 			m_pDictionary->close();
@@ -271,10 +267,9 @@ ExtensionDictionary::~ExtensionDictionary() {
 }
 
 //---
-EmployeeDictionary::EmployeeDictionary() {
-	m_initFlag = false;
+EmployeeDict::EmployeeDict() {
 
-	ExtensionDictionary ed;
+	ExtensionDict ed;
 	AcDbDictionary* pExtDict;
 	if (!(pExtDict = ed.Get())) {
 		return;
@@ -295,24 +290,9 @@ EmployeeDictionary::EmployeeDictionary() {
 		upEmployeeDict.release();
 		acutPrintf(L"\nEvent: Created EMPLOYEE_DICTIONARY");
 	}
-
-	m_initFlag = true;
 }
 
-AcDbDictionary* EmployeeDictionary::Get(AcDb::OpenMode mode) {
-	if (!m_initFlag) {
-		return nullptr;
-	}
-
-	if (mode == AcDb::kForRead) {
-		return m_pDictionary;
-	}
-
-	m_pDictionary->upgradeOpen();
-	return m_pDictionary;
-}
-
-EmployeeDictionary::~EmployeeDictionary() {
+EmployeeDict::~EmployeeDict() {
 	try {
 		if (m_pDictionary) {
 			m_pDictionary->close();

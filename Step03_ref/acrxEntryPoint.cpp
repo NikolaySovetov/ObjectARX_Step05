@@ -34,7 +34,6 @@ public:
 			}
 		}
 
-
 		return (retCode);
 	}
 
@@ -102,7 +101,7 @@ public:
 
 		AcDbDictionary* pDict;
 		{
-			EmployeeDictionary ed;
+			EmployeeDict ed;
 			pDict = ed.Get();
 		}
 

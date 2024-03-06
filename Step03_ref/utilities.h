@@ -38,36 +38,25 @@ public:
 		SetLayer(const TCHAR* blockName, const TCHAR* layerName);
 };
 
-//class Dictionary {
-//protected:
-//	AcDbDictionary* m_pDictionary{};
-//	bool m_initFlag{};
-//
-//public:
-//	~Dictionary();
-//	AcDbDictionary* Get(AcDb::OpenMode mode = AcDb::kForRead);
-//};
-
-class ExtensionDictionary {
-private:
+class Dictionary {
+protected:
 	AcDbDictionary* m_pDictionary{};
-	bool m_initFlag{};
 
 public:
-	ExtensionDictionary();
-	~ExtensionDictionary();
+	~Dictionary() = default;
 	AcDbDictionary* Get(AcDb::OpenMode mode = AcDb::kForRead);
 };
 
-class EmployeeDictionary {
-private:
-	AcDbDictionary* m_pDictionary{};
-	bool m_initFlag{};
-
+class ExtensionDict : public Dictionary {
 public:
-	EmployeeDictionary();
-	~EmployeeDictionary();
-	AcDbDictionary* Get(AcDb::OpenMode mode = AcDb::kForRead);
+	ExtensionDict();
+	~ExtensionDict();
+};
+
+class EmployeeDict : public Dictionary {
+public:
+	EmployeeDict();
+	~EmployeeDict();
 };
 
 bool GetRefObject(AcDbObject*& pObject, AcDb::OpenMode mode);
