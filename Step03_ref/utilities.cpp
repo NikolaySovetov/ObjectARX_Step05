@@ -316,14 +316,16 @@ void EmployeeDict::CreateRecord(const TCHAR* strRecordName) {
 		return;
 	}
 
-	//std::unique_ptr<EmployeeDetails> upEmpDet = std::make_unique<EmployeeDetails>();
+	std::unique_ptr<EmployeeDetails> upEmpDet;
+
+	//upEmpDet = std::make_unique<EmployeeDetails>(101, 102, L"firsName", L"lastName");
 	//if (m_pDictionary->setAt(strRecordName, upEmpDet.get(), objId) != Acad::eOk) {
 	//	acutPrintf(L"\nError: Can't set record to employee dictionary");
 	//	return;
 	//}
 
 	acutPrintf(L"\nEvents: Create record to employee dictionary");
-	//upEmpDet.release();
+	upEmpDet.release();
 }
 
 //----------------------------------------------

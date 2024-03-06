@@ -19,10 +19,19 @@ ACRX_DXF_DEFINE_MEMBERS(
 )
 
 //-----------------------------------------------------------------------------
-EmployeeDetails::EmployeeDetails()
-	: AcDbObject(), m_nID{ 0 }, m_nCube{ 0 },
-	m_strFirstName{ NULL }, m_strLastName{ NULL }
-{
+EmployeeDetails::EmployeeDetails() : AcDbObject() {
+	m_nID = 0;
+	m_nCube = 0;
+	m_strFirstName = NULL; 
+	m_strLastName = NULL;
+}
+
+EmployeeDetails::EmployeeDetails(const Adesk::Int32 ID, const Adesk::Int32 cube,
+								 const TCHAR* firstName, const TCHAR* lastName) {
+	this->SetID(ID);
+	this->SetCube(cube);
+	this->SetFirstName(firstName);
+	this->SetLastName(lastName);
 }
 
 EmployeeDetails::~EmployeeDetails() {

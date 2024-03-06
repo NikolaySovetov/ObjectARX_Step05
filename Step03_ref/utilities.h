@@ -59,6 +59,8 @@ public:
 	EmployeeDict();
 	~EmployeeDict();
 	void CreateRecord(const TCHAR* strRecordName);
+	void EraseRecord(const TCHAR* strRecordName);
+	void ListRecord(const TCHAR* strRecordName);
 };
 
 bool GetRefObject(AcDbObject*& pObject, AcDb::OpenMode mode);

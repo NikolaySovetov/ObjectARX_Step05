@@ -99,23 +99,8 @@ public:
 
 	static void Step05_adddetail() {
 
-
 		EmployeeDict ed;
 		ed.CreateRecord(L"DETAILS");
-
-
-		//EmployeeDetails* pEmployeeDetails = new EmployeeDetails;
-		//pEmployeeDetails->SetID(101);
-		//pEmployeeDetails->SetCube(102);
-		//pEmployeeDetails->SetFirstName(L"FirstName");
-		//pEmployeeDetails->SetLastName(L"LastName");
-		//
-		//// Add it to the dictionary
-		//AcDbObjectId idO;
-		//if (pDict->setAt(_T("DETAILS"), pEmployeeDetails, idO) != Acad::eOk) {
-		//	delete pEmployeeDetails;
-		//	acutPrintf(_T("\nFailed to add details to that object."));
-		//}
 	}
 
 

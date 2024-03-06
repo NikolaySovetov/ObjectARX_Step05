@@ -42,6 +42,8 @@ protected:
 
 public:
 	EmployeeDetails () ;
+	EmployeeDetails (const Adesk::Int32 ID, const Adesk::Int32 cube,
+					 const TCHAR* firstName, const TCHAR* lastName) ;
 	virtual ~EmployeeDetails () ;
 
 	//----- AcDbObject protocols
