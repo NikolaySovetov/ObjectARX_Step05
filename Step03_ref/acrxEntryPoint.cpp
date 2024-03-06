@@ -23,7 +23,17 @@ public:
 		// You *must* call On_kInitAppMsg here
 		AcRx::AppRetCode retCode = AcRxArxApp::On_kInitAppMsg(pkt);
 
-		// TODO: Add your initialization code here
+		AcRxObject* pSvc;
+		if (!(pSvc = acrxServiceDictionary->at(EMPLOYEEDETAILS_DBXSERVICE)))
+		{
+			// Try to load the module, if it is not yet present 
+			if (!acrxDynamicLinker->loadModule(_T("EmployeeDetailsProj.dbx"), 0))
+			{
+				acutPrintf(_T("Unable to load EmployeeDetailsProj.dbx. Unloading this application...\n"));
+				return (AcRx::kRetError);
+			}
+		}
+
 
 		return (retCode);
 	}
@@ -89,11 +99,13 @@ public:
 	}
 
 	static void Step05_adddetail() {
-		
+
 		AcDbDictionary* pDict;
-		EmployeeDictionary ed;
-		pDict = ed.Get();
-		
+		{
+			EmployeeDictionary ed;
+			pDict = ed.Get();
+		}
+
 
 	}
 

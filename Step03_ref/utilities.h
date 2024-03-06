@@ -38,6 +38,16 @@ public:
 		SetLayer(const TCHAR* blockName, const TCHAR* layerName);
 };
 
+//class Dictionary {
+//protected:
+//	AcDbDictionary* m_pDictionary{};
+//	bool m_initFlag{};
+//
+//public:
+//	~Dictionary();
+//	AcDbDictionary* Get(AcDb::OpenMode mode = AcDb::kForRead);
+//};
+
 class ExtensionDictionary {
 private:
 	AcDbDictionary* m_pDictionary{};
@@ -53,6 +63,7 @@ class EmployeeDictionary {
 private:
 	AcDbDictionary* m_pDictionary{};
 	bool m_initFlag{};
+
 public:
 	EmployeeDictionary();
 	~EmployeeDictionary();

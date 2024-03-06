@@ -260,8 +260,10 @@ AcDbDictionary* ExtensionDictionary::Get(AcDb::OpenMode mode) {
 }
 
 ExtensionDictionary::~ExtensionDictionary() {
-	try	{
-		m_pDictionary->close();
+	try {
+		if (m_pDictionary) {
+			m_pDictionary->close();
+		}
 	}
 	catch (const std::exception&) {
 
@@ -289,10 +291,11 @@ EmployeeDictionary::EmployeeDictionary() {
 			acutPrintf(L"\nError: Can't create EMPLOYEE_DICTIONARY");
 			return;
 		}
+		m_pDictionary = upEmployeeDict.get();
 		upEmployeeDict.release();
+		acutPrintf(L"\nEvent: Created EMPLOYEE_DICTIONARY");
 	}
 
-	acutPrintf(L"\nEvent: Created EMPLOYEE_DICTIONARY");
 	m_initFlag = true;
 }
 
@@ -311,7 +314,9 @@ AcDbDictionary* EmployeeDictionary::Get(AcDb::OpenMode mode) {
 
 EmployeeDictionary::~EmployeeDictionary() {
 	try {
-		m_pDictionary->close();
+		if (m_pDictionary) {
+			m_pDictionary->close();
+		}
 	}
 	catch (const std::exception&) {
 
