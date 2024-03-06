@@ -1,8 +1,9 @@
 #pragma once
 #include "StdAfx.h"
+#include "EmployeeDetails.h"
 #include <initializer_list>
-#include <memory>
 
+#pragma comment (lib ,"EmployeeDetailsProj.lib")
 
 class Employee
 {
@@ -57,6 +58,7 @@ class EmployeeDict : public Dictionary {
 public:
 	EmployeeDict();
 	~EmployeeDict();
+	void CreateRecord(const TCHAR* strRecordName);
 };
 
 bool GetRefObject(AcDbObject*& pObject, AcDb::OpenMode mode);

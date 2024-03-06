@@ -1,9 +1,9 @@
 #include "StdAfx.h"
 #include "resource.h"
 #include "utilities.h"
-#include "EmployeeDetails.h"
+//#include "EmployeeDetails.h"
 
-#pragma comment (lib ,"EmployeeDetailsProj.lib")
+//#pragma comment (lib ,"EmployeeDetailsProj.lib")
 
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("")
@@ -99,13 +99,23 @@ public:
 
 	static void Step05_adddetail() {
 
-		AcDbDictionary* pDict;
-		{
-			EmployeeDict ed;
-			pDict = ed.Get();
-		}
+
+		EmployeeDict ed;
+		ed.CreateRecord(L"DETAILS");
 
 
+		//EmployeeDetails* pEmployeeDetails = new EmployeeDetails;
+		//pEmployeeDetails->SetID(101);
+		//pEmployeeDetails->SetCube(102);
+		//pEmployeeDetails->SetFirstName(L"FirstName");
+		//pEmployeeDetails->SetLastName(L"LastName");
+		//
+		//// Add it to the dictionary
+		//AcDbObjectId idO;
+		//if (pDict->setAt(_T("DETAILS"), pEmployeeDetails, idO) != Acad::eOk) {
+		//	delete pEmployeeDetails;
+		//	acutPrintf(_T("\nFailed to add details to that object."));
+		//}
 	}
 
 

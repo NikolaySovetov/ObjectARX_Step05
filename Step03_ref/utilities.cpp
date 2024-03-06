@@ -303,6 +303,29 @@ EmployeeDict::~EmployeeDict() {
 	}
 }
 
+void EmployeeDict::CreateRecord(const TCHAR* strRecordName) {
+	
+	AcDbObjectId objId;
+	if (m_pDictionary->getAt(_T("DETAILS"), objId) == Acad::eOk) { 
+		acutPrintf(L"\nEvent: Details already assign to that 'Employee' object.");
+		return;
+	}
+
+	if (m_pDictionary->upgradeOpen() != Acad::eOk) {
+		acutPrintf(L"\nError: Can't open employee dictionary");
+		return;
+	}
+
+	//std::unique_ptr<EmployeeDetails> upEmpDet = std::make_unique<EmployeeDetails>();
+	//if (m_pDictionary->setAt(strRecordName, upEmpDet.get(), objId) != Acad::eOk) {
+	//	acutPrintf(L"\nError: Can't set record to employee dictionary");
+	//	return;
+	//}
+
+	acutPrintf(L"\nEvents: Create record to employee dictionary");
+	//upEmpDet.release();
+}
+
 //----------------------------------------------
 bool GetRefObject(AcDbObject*& pObject, AcDb::OpenMode mode) {
 	ads_name entytiName;
