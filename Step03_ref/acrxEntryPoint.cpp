@@ -1,6 +1,9 @@
 #include "StdAfx.h"
 #include "resource.h"
 #include "utilities.h"
+#include "EmployeeDetails.h"
+
+#pragma comment (lib ,"EmployeeDetailsProj.lib")
 
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("")
@@ -80,6 +83,18 @@ public:
 			acutPrintf(_T("\nSet Layer \"%s\" for \"%s\"."), layerName, blockName);
 		}
 	}
+
+	static void Step05_adddetail() {
+		
+		AcDbObject* pObject;
+		if (GetRefObject(pObject, AcDb::kForRead)) {
+			pObject->close();
+		}
+
+
+	}
+
+
 };
 
 //-----------------------------------------------------------------------------
@@ -88,6 +103,7 @@ IMPLEMENT_ARX_ENTRYPOINT(CStep03_refApp)
 ACED_ARXCOMMAND_ENTRY_AUTO(CStep03_refApp, Step03, _createLayer, createLayer, ACRX_CMD_TRANSPARENT, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CStep03_refApp, Step03, _createBlock, createBlock, ACRX_CMD_TRANSPARENT, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CStep03_refApp, Step03, _setLayer, setLayer, ACRX_CMD_TRANSPARENT, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CStep03_refApp, Step05, _adddetail, adddetail, ACRX_CMD_TRANSPARENT, NULL)
 
 
 

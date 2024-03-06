@@ -24,7 +24,7 @@
     <ClCompile Include="acrxEntryPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Step03_ref.cpp">
+    <ClCompile Include="Step03.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="utilities.cpp">

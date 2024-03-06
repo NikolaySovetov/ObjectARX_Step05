@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "utilities.h"
 
+//-------------	Creator	-------------
 Acad::ErrorStatus UtilityCreator::CreateLayer(const TCHAR* layerName, AcDbObjectId& layerId)
 {
 	// 1 Get the layer table from the current working database
@@ -59,7 +60,6 @@ Acad::ErrorStatus UtilityCreator::CreateBlockRecord(const TCHAR* blockName)
 		if ((mErrStat = pBTable->upgradeOpen()) == Acad::eOk)
 		{
 			mErrStat = pBTable->add(pBTRecord);
-			//acutPrintf(_T("\nmErrStat (62): %d"), mErrStat);
 		}
 		else
 		{
@@ -160,7 +160,7 @@ Acad::ErrorStatus UtilityCreator::SetLayer(const TCHAR* blockName, const TCHAR* 
 	return mErrStat;
 }
 
-//------------------------------------------------------------------------------
+//-------------	Employee -------------
 Acad::ErrorStatus Employee::AddEmployee(AcDbBlockTableRecord* pBTRecord)
 {
 	AcDbCircle* pFace = new AcDbCircle(AcGePoint3d::kOrigin, AcGeVector3d::kZAxis, 1.0);
@@ -205,8 +205,5 @@ void Employee::AddEntities(AcDbBlockTableRecord* pBTRecord,
 		pBTRecord->erase();
 	}
 }
-
-
-
 
 
