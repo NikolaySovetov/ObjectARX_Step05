@@ -62,4 +62,30 @@ inline bool GetRefObject(AcDbObject*& pObject, AcDb::OpenMode mode) {
 	return true;
 }
 
+inline bool GetExtDictionary(AcDbObjectId& objectId) {
+	AcDbObject* pObject;
+	if (!GetRefObject(pObject, AcDb::kForRead)) {
+		return false;
+	}
+
+	objectId = pObject->extensionDictionary();
+	if (objectId == AcDbObjectId::kNull) {
+		if (pObject->createExtensionDictionary() != Acad::eOk) {
+			pObject->close();
+			acutPrintf(L"\nError: Can't create extension dictionary");
+			return false;
+		}
+		objectId = pObject->extensionDictionary();
+		acutPrintf(L"\nEvent: Create extension dictionary");
+	}
+	pObject->close();
+
+	return true;
+}
+
+
+
+
+
+
 

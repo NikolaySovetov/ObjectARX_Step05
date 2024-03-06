@@ -86,11 +86,15 @@ public:
 
 	static void Step05_adddetail() {
 		
-		AcDbObject* pObject;
-		if (GetRefObject(pObject, AcDb::kForRead)) {
-			pObject->close();
-		}
+		//AcDbObject* pObject;
+		//if (GetRefObject(pObject, AcDb::kForRead)) {
+		//	pObject->close();
+		//}
 
+		AcDbObjectId objectId;
+		if (GetExtDictionary(objectId)) {
+
+		}
 
 	}
 
