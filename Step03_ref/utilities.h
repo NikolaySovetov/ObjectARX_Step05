@@ -1,6 +1,8 @@
 #pragma once
 #include "StdAfx.h"
 #include <initializer_list>
+#include <memory>
+
 
 class Employee
 {
@@ -20,8 +22,7 @@ public:
 
 };
 
-class UtilityCreator
-{
+class UtilityCreator {
 private:
 	Acad::ErrorStatus mErrStat;
 
@@ -37,51 +38,29 @@ public:
 		SetLayer(const TCHAR* blockName, const TCHAR* layerName);
 };
 
-inline bool GetRefObject(AcDbObject*& pObject, AcDb::OpenMode mode) {
-	ads_name entytiName;
-	ads_point entityPoint;
+class ExtensionDictionary {
+private:
+	AcDbDictionary* m_pDictionary{};
+	bool m_initFlag{};
 
-	if (acedEntSel(L"Select employee", entytiName, entityPoint) != RTNORM) {
-		return false;
-	}
+public:
+	ExtensionDictionary();
+	~ExtensionDictionary();
+	AcDbDictionary* Get(AcDb::OpenMode mode = AcDb::kForRead);
+};
 
-	AcDbObjectId objectID;
-	if (acdbGetObjectId(objectID, entytiName) != Acad::eOk) {
-		return false;
-	}
+class EmployeeDictionary {
+private:
+	AcDbDictionary* m_pDictionary{};
+	bool m_initFlag{};
+public:
+	EmployeeDictionary();
+	~EmployeeDictionary();
+	AcDbDictionary* Get(AcDb::OpenMode mode = AcDb::kForRead);
+};
 
-	if (acdbOpenAcDbObject(pObject, objectID, mode) != Acad::eOk) {
-		return false;
-	}
+bool GetRefObject(AcDbObject*& pObject, AcDb::OpenMode mode);
 
-	if (!pObject->isKindOf(AcDbBlockReference::desc())) {
-		pObject->close();
-		return false;
-	}
-
-	return true;
-}
-
-inline bool GetExtDictionary(AcDbObjectId& objectId) {
-	AcDbObject* pObject;
-	if (!GetRefObject(pObject, AcDb::kForRead)) {
-		return false;
-	}
-
-	objectId = pObject->extensionDictionary();
-	if (objectId == AcDbObjectId::kNull) {
-		if (pObject->createExtensionDictionary() != Acad::eOk) {
-			pObject->close();
-			acutPrintf(L"\nError: Can't create extension dictionary");
-			return false;
-		}
-		objectId = pObject->extensionDictionary();
-		acutPrintf(L"\nEvent: Create extension dictionary");
-	}
-	pObject->close();
-
-	return true;
-}
 
 
 

@@ -84,17 +84,16 @@ public:
 		}
 	}
 
+	static void Step05_createDictionary() {
+
+	}
+
 	static void Step05_adddetail() {
 		
-		//AcDbObject* pObject;
-		//if (GetRefObject(pObject, AcDb::kForRead)) {
-		//	pObject->close();
-		//}
-
-		AcDbObjectId objectId;
-		if (GetExtDictionary(objectId)) {
-
-		}
+		AcDbDictionary* pDict;
+		EmployeeDictionary ed;
+		pDict = ed.Get();
+		
 
 	}
 
