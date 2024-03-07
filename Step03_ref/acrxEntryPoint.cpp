@@ -97,11 +97,20 @@ public:
 
 	}
 
-	static void Step05_adddetail() {
+	static void Step05_addDetail() {
 
 		AddDetails(L"DETAILS");
 	}
 
+	static void Step05_removeDetail() {
+
+		RemoveDetails(L"DETAILS");
+	}
+
+	static void Step05_listDetail() {
+
+		ListDetails(L"DETAILS");
+	}
 
 };
 
@@ -111,7 +120,9 @@ IMPLEMENT_ARX_ENTRYPOINT(CStep03_refApp)
 ACED_ARXCOMMAND_ENTRY_AUTO(CStep03_refApp, Step03, _createLayer, createLayer, ACRX_CMD_TRANSPARENT, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CStep03_refApp, Step03, _createBlock, createBlock, ACRX_CMD_TRANSPARENT, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CStep03_refApp, Step03, _setLayer, setLayer, ACRX_CMD_TRANSPARENT, NULL)
-ACED_ARXCOMMAND_ENTRY_AUTO(CStep03_refApp, Step05, _adddetail, adddetail, ACRX_CMD_TRANSPARENT, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CStep03_refApp, Step05, _addDetail, addDetail, ACRX_CMD_TRANSPARENT, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CStep03_refApp, Step05, _removeDetail, removeDetail, ACRX_CMD_TRANSPARENT, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CStep03_refApp, Step05, _listDetail, listDetail, ACRX_CMD_TRANSPARENT, NULL)
 
 
 

@@ -271,7 +271,7 @@ EmployeeDict::EmployeeDict(const TCHAR* strDictName) {
 
 	ExtensionDict ed;
 	AcDbDictionary* pExtDict;
-	if (!(pExtDict = ed.Get())) {
+	if (!(pExtDict = ed.Get(AcDb::kForWrite))) {
 		return;
 	}
 
@@ -301,31 +301,6 @@ EmployeeDict::~EmployeeDict() {
 	catch (const std::exception&) {
 
 	}
-}
-
-void EmployeeDict::AddDetails(const TCHAR* strRecordName) {
-
-	if (!m_pDictionary) {
-		return;
-	}
-	
-	AcDbObjectId objId;
-	if (m_pDictionary->getAt(strRecordName, objId) == Acad::eOk) {
-		acutPrintf(L"\nEvent: Details already assign to that 'Employee' object.");
-		return;
-	}
-
-	std::unique_ptr<EmployeeDetails> upEmpDet;
-
-	upEmpDet = std::make_unique<EmployeeDetails>(101, 102, L"firsName", L"lastName");
-
-	if (m_pDictionary->setAt(strRecordName, upEmpDet.get(), objId) != Acad::eOk) {
-		acutPrintf(L"\nError: Can't set record to employee dictionary");
-		return;
-	}
-
-	acutPrintf(L"\nEvents: Create record to employee dictionary");
-	upEmpDet.release();
 }
 
 //----------------------------------------------
@@ -379,6 +354,80 @@ void AddDetails(const TCHAR* strRecordName) {
 	}
 
 	acutPrintf(L"\nEvents: Create record to employee dictionary");
+	upEmpDet->close();
 	upEmpDet.release();
+
 }
+
+void RemoveDetails(const TCHAR* strRecordName) {
+
+	EmployeeDict dict;
+	AcDbDictionary* pDict = dict.Get(AcDb::kForWrite);
+
+	if (!pDict) {
+		return;
+	}
+
+	AcDbObjectId objId;
+	if (pDict->getAt(strRecordName, objId) == Acad::eKeyNotFound) {
+		acutPrintf(L"\nWarning: No details assigned to that object");
+		return;
+	}
+
+	AcDbObject* pObj;
+	Acad::ErrorStatus es;
+
+	if ((es = acdbOpenAcDbObject(pObj, objId, AcDb::kForWrite)) != Acad::eOk) {
+		acutPrintf(L"\nWarning: Can't to open the object detail");
+		return;
+	}
+
+	pObj->erase();
+	pObj->close();
+
+	if (pDict->numEntries() == 0) {
+		pDict->erase();
+	}
+	acutPrintf(L"\nEvent: Detail was removed");
+}
+
+void ListDetails(const TCHAR* strRecordName) {
+
+	EmployeeDict dict;
+	AcDbDictionary* pDict = dict.Get();
+
+	if (!pDict) {
+		return;
+	}
+
+	AcDbObjectId objId;
+	if (pDict->getAt(strRecordName, objId) == Acad::eKeyNotFound) {
+		acutPrintf(L"\nWarning: No details assigned to that object");
+		return;
+	}
+
+	AcDbObject* pObj;
+	Acad::ErrorStatus es;
+	if ((es = acdbOpenAcDbObject(pObj, objId, AcDb::kForRead)) != Acad::eOk) {
+		acutPrintf(L"\nWarning: Can't to open the object detail");
+		return;
+	}
+
+	EmployeeDetails* pEmpDetails = EmployeeDetails::cast(pObj);
+	if (pEmpDetails) {
+		Adesk::Int32 i;
+		pEmpDetails->GetID(i);
+		acutPrintf(_T("\nEmployee ID: %d"), i);
+		pEmpDetails->GetCube(i);
+		acutPrintf(_T("\nEmployee CUBE: %d"), i);
+
+		TCHAR* str = nullptr;
+		pEmpDetails->GetFirstName(str);
+		acutPrintf(_T("\nEmployee FirsName: %s"), str);
+		pEmpDetails->GetLastName(str);
+		acutPrintf(_T("\nEmployee LastName: %s"), str);
+	}
+	pEmpDetails->close();
+}
+
 
