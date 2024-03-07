@@ -1,6 +1,10 @@
 #include "StdAfx.h"
 #include "utilities.h"
+#include <memory>
+#include <exception>
+#include <stdexcept>
 
+//-------------	Step_03	-------------
 Acad::ErrorStatus UtilityCreator::CreateLayer(const TCHAR* layerName, AcDbObjectId& layerId)
 {
 	// 1 Get the layer table from the current working database
@@ -59,7 +63,6 @@ Acad::ErrorStatus UtilityCreator::CreateBlockRecord(const TCHAR* blockName)
 		if ((mErrStat = pBTable->upgradeOpen()) == Acad::eOk)
 		{
 			mErrStat = pBTable->add(pBTRecord);
-			//acutPrintf(_T("\nmErrStat (62): %d"), mErrStat);
 		}
 		else
 		{
@@ -143,10 +146,10 @@ Acad::ErrorStatus UtilityCreator::SetLayer(const TCHAR* blockName, const TCHAR* 
 		// 7 Obtain the block table record of the reference and check it name
 		blockId = (AcDbBlockReference::cast(pEntity))->blockTableRecord();
 
-		if (acdbOpenObject(/*(AcDbObject*&)*/pBTRecord, blockId, AcDb::kForRead) == Acad::eOk) 
+		if (acdbOpenObject(/*(AcDbObject*&)*/pBTRecord, blockId, AcDb::kForRead) == Acad::eOk)
 		{
 			pBTRecord->getName(currentBlockName);
-			if (_tcscmp(currentBlockName, blockName) == 0) 
+			if (_tcscmp(currentBlockName, blockName) == 0)
 			{
 				if (pEntity->upgradeOpen() == Acad::eOk)
 					pEntity->setLayer(layerName);
@@ -156,11 +159,11 @@ Acad::ErrorStatus UtilityCreator::SetLayer(const TCHAR* blockName, const TCHAR* 
 		}
 		pEntity->close();
 	}
-	
+
 	return mErrStat;
 }
 
-//------------------------------------------------------------------------------
+//---
 Acad::ErrorStatus Employee::AddEmployee(AcDbBlockTableRecord* pBTRecord)
 {
 	AcDbCircle* pFace = new AcDbCircle(AcGePoint3d::kOrigin, AcGeVector3d::kZAxis, 1.0);
@@ -206,7 +209,214 @@ void Employee::AddEntities(AcDbBlockTableRecord* pBTRecord,
 	}
 }
 
+//-------------	Step_05 -------------
+AcDbDictionary* Dictionary::Get(AcDb::OpenMode mode) {
 
+	if (!m_pDictionary) {
+		return nullptr;
+	}
 
+	if (mode == AcDb::kForRead) {
+		return m_pDictionary;
+	}
+
+	m_pDictionary->upgradeOpen();
+	return m_pDictionary;
+}
+
+Dictionary::~Dictionary() {
+	try {
+		if (m_pDictionary) {
+			m_pDictionary->close();
+		}
+	}
+	catch (const std::exception&) {
+
+	}
+}
+
+ExtensionDict::ExtensionDict() {
+	AcDbObjectId objectId;
+	AcDbObject* pObject;
+
+	if (!GetRefObject(pObject, AcDb::kForWrite)) {
+		acutPrintf(L"\nError: Can't get reference object");
+		return;
+	}
+
+	// Create Extension Dictionary for referense object if it not already
+	objectId = pObject->extensionDictionary();
+	if (objectId == AcDbObjectId::kNull) {
+		if (pObject->createExtensionDictionary() != Acad::eOk) {
+			pObject->close();
+			acutPrintf(L"\nError: Can't create extension dictionary");
+			return;
+		}
+		objectId = pObject->extensionDictionary();
+		acutPrintf(L"\nEvent: Create extension dictionary");
+	}
+	pObject->close();
+
+	if (acdbOpenAcDbObject((AcDbObject*&)m_pDictionary, objectId,
+		AcDb::kForWrite, Adesk::kFalse) != Acad::eOk) {
+		throw std::runtime_error("Can't open extension dictionary");
+	}
+
+	if (m_pDictionary->isErased())
+		m_pDictionary->erase(Adesk::kFalse);
+}
+
+//---
+EmployeeDict::EmployeeDict(const TCHAR* strDictName) {
+
+	ExtensionDict ed;
+	AcDbDictionary* pExtDict;
+	if (!(pExtDict = ed.Get(AcDb::kForWrite))) {
+		return;
+	}
+
+	Acad::ErrorStatus error = pExtDict->getAt(strDictName, m_pDictionary);
+
+	if (error == Acad::eKeyNotFound) {
+		AcDbObjectId objId;
+		std::unique_ptr<AcDbDictionary> upEmployeeDict = std::make_unique<AcDbDictionary>();
+		pExtDict->upgradeOpen();
+		if (pExtDict->setAt(strDictName, upEmployeeDict.get(), objId)
+			!= Acad::eOk) {
+			acutPrintf(_T("\nError: Can't create %s"), strDictName);
+			return;
+		}
+		m_pDictionary = upEmployeeDict.get();
+		upEmployeeDict.release();
+		acutPrintf(_T("\nEvent: Created %s"), strDictName);
+	}
+}
+
+//----------------------------------------------
+bool GetRefObject(AcDbObject*& pObject, AcDb::OpenMode mode) {
+	ads_name entytiName;
+	ads_point entityPoint;
+
+	if (acedEntSel(L"Select employee: ", entytiName, entityPoint) != RTNORM) {
+		return false;
+	}
+
+	AcDbObjectId objectID;
+	if (acdbGetObjectId(objectID, entytiName) != Acad::eOk) {
+		return false;
+	}
+
+	if (acdbOpenAcDbObject(pObject, objectID, mode) != Acad::eOk) {
+		return false;
+	}
+
+	if (!pObject->isKindOf(AcDbBlockReference::desc())) {
+		pObject->close();
+		return false;
+	}
+
+	return true;
+}
+
+void AddDetails(const TCHAR* strRecordName) {
+
+	EmployeeDict dict;
+	AcDbDictionary* pDict = dict.Get(AcDb::kForWrite);
+
+	if (!pDict) {
+		return;
+	}
+
+	AcDbObjectId objId;
+	if (pDict->getAt(strRecordName, objId) == Acad::eOk) {
+		acutPrintf(L"\nEvent: Details already assign to that 'Employee' object.");
+		return;
+	}
+
+	std::unique_ptr<EmployeeDetails> upEmpDet;
+
+	upEmpDet = std::make_unique<EmployeeDetails>(101, 102, L"firsName", L"lastName");
+
+	if (pDict->setAt(strRecordName, upEmpDet.get(), objId) != Acad::eOk) {
+		acutPrintf(L"\nError: Can't set record to employee dictionary");
+		return;
+	}
+
+	acutPrintf(L"\nEvents: Create record to employee dictionary");
+	upEmpDet->close();
+	upEmpDet.release();
+
+}
+
+void RemoveDetails(const TCHAR* strRecordName) {
+
+	EmployeeDict dict;
+	AcDbDictionary* pDict = dict.Get(AcDb::kForWrite);
+
+	if (!pDict) {
+		return;
+	}
+
+	AcDbObjectId objId;
+	if (pDict->getAt(strRecordName, objId) == Acad::eKeyNotFound) {
+		acutPrintf(L"\nWarning: No details assigned to that object");
+		return;
+	}
+
+	AcDbObject* pObj;
+	Acad::ErrorStatus es;
+
+	if ((es = acdbOpenAcDbObject(pObj, objId, AcDb::kForWrite)) != Acad::eOk) {
+		acutPrintf(L"\nWarning: Can't to open the object detail");
+		return;
+	}
+
+	pObj->erase();
+	pObj->close();
+
+	if (pDict->numEntries() == 0) {
+		pDict->erase();
+	}
+	acutPrintf(L"\nEvent: Detail was removed");
+}
+
+void ListDetails(const TCHAR* strRecordName) {
+
+	EmployeeDict dict;
+	AcDbDictionary* pDict = dict.Get();
+
+	if (!pDict) {
+		return;
+	}
+
+	AcDbObjectId objId;
+	if (pDict->getAt(strRecordName, objId) == Acad::eKeyNotFound) {
+		acutPrintf(L"\nWarning: No details assigned to that object");
+		return;
+	}
+
+	AcDbObject* pObj;
+	Acad::ErrorStatus es;
+	if ((es = acdbOpenAcDbObject(pObj, objId, AcDb::kForRead)) != Acad::eOk) {
+		acutPrintf(L"\nWarning: Can't to open the object detail");
+		return;
+	}
+
+	EmployeeDetails* pEmpDetails = EmployeeDetails::cast(pObj);
+	if (pEmpDetails) {
+		Adesk::Int32 i;
+		pEmpDetails->GetID(i);
+		acutPrintf(_T("\nEmployee ID: %d"), i);
+		pEmpDetails->GetCube(i);
+		acutPrintf(_T("\nEmployee CUBE: %d"), i);
+
+		TCHAR* str = nullptr;
+		pEmpDetails->GetFirstName(str);
+		acutPrintf(_T("\nEmployee FirsName: %s"), str);
+		pEmpDetails->GetLastName(str);
+		acutPrintf(_T("\nEmployee LastName: %s"), str);
+	}
+	pEmpDetails->close();
+}
 
 

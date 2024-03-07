@@ -1,6 +1,9 @@
 #pragma once
 #include "StdAfx.h"
+#include "EmployeeDetails.h"
 #include <initializer_list>
+
+#pragma comment (lib ,"EmployeeDetailsProj.lib")
 
 class Employee
 {
@@ -12,13 +15,15 @@ private:
 	void AddEntities(AcDbBlockTableRecord* pBTRecord,
 		const std::initializer_list<AcDbEntity*>& vEntity);
 
+
+
 public:
 	Acad::ErrorStatus
 		AddEmployee(AcDbBlockTableRecord* pBTRecord);
+
 };
 
-class UtilityCreator
-{
+class UtilityCreator {
 private:
 	Acad::ErrorStatus mErrStat;
 
@@ -33,6 +38,34 @@ public:
 	Acad::ErrorStatus
 		SetLayer(const TCHAR* blockName, const TCHAR* layerName);
 };
+
+class Dictionary {
+protected:
+	AcDbDictionary* m_pDictionary{};
+
+public:
+	~Dictionary();
+	AcDbDictionary* Get(AcDb::OpenMode mode = AcDb::kForRead);
+};
+
+class ExtensionDict : public Dictionary {
+public:
+	ExtensionDict();
+};
+
+class EmployeeDict : public Dictionary {
+public:
+	EmployeeDict(const TCHAR* strDictName = L"EMPLOYEE_DICTIONARY");
+};
+
+bool GetRefObject(AcDbObject*& pObject, AcDb::OpenMode mode);
+
+void AddDetails(const TCHAR* strRecordName);
+void RemoveDetails(const TCHAR* strRecordName);
+void ListDetails(const TCHAR* strRecordName);
+
+
+
 
 
 
