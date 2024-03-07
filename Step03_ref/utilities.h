@@ -44,20 +44,18 @@ protected:
 	AcDbDictionary* m_pDictionary{};
 
 public:
-	~Dictionary() = default;
+	~Dictionary();
 	AcDbDictionary* Get(AcDb::OpenMode mode = AcDb::kForRead);
 };
 
 class ExtensionDict : public Dictionary {
 public:
 	ExtensionDict();
-	~ExtensionDict();
 };
 
 class EmployeeDict : public Dictionary {
 public:
 	EmployeeDict(const TCHAR* strDictName = L"EMPLOYEE_DICTIONARY");
-	~EmployeeDict();
 };
 
 bool GetRefObject(AcDbObject*& pObject, AcDb::OpenMode mode);

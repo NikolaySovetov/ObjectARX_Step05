@@ -224,6 +224,17 @@ AcDbDictionary* Dictionary::Get(AcDb::OpenMode mode) {
 	return m_pDictionary;
 }
 
+Dictionary::~Dictionary() {
+	try {
+		if (m_pDictionary) {
+			m_pDictionary->close();
+		}
+	}
+	catch (const std::exception&) {
+
+	}
+}
+
 ExtensionDict::ExtensionDict() {
 	AcDbObjectId objectId;
 	AcDbObject* pObject;
@@ -255,17 +266,6 @@ ExtensionDict::ExtensionDict() {
 		m_pDictionary->erase(Adesk::kFalse);
 }
 
-ExtensionDict::~ExtensionDict() {
-	try {
-		if (m_pDictionary) {
-			m_pDictionary->close();
-		}
-	}
-	catch (const std::exception&) {
-
-	}
-}
-
 //---
 EmployeeDict::EmployeeDict(const TCHAR* strDictName) {
 
@@ -289,17 +289,6 @@ EmployeeDict::EmployeeDict(const TCHAR* strDictName) {
 		m_pDictionary = upEmployeeDict.get();
 		upEmployeeDict.release();
 		acutPrintf(_T("\nEvent: Created %s"), strDictName);
-	}
-}
-
-EmployeeDict::~EmployeeDict() {
-	try {
-		if (m_pDictionary) {
-			m_pDictionary->close();
-		}
-	}
-	catch (const std::exception&) {
-
 	}
 }
 
