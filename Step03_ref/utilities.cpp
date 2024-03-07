@@ -236,6 +236,37 @@ Dictionary::~Dictionary() {
 }
 
 //---
+void GetRefObject(AcDbObject*& pObject, AcDb::OpenMode mode) {
+	ads_name entytiName;
+	ads_point entityPoint;
+	
+
+	if (acedEntSel(L"Select employee: ", entytiName, entityPoint) != RTNORM) {
+		pObject = nullptr; 
+		return;
+	}
+
+	AcDbObjectId objectID;
+	if (acdbGetObjectId(objectID, entytiName) != Acad::eOk) {
+		pObject = nullptr;
+		return;
+	}
+
+	if (acdbOpenAcDbObject(pObject, objectID, mode) != Acad::eOk) {
+		pObject = nullptr; 
+		return;
+	}
+
+	if (!pObject->isKindOf(AcDbBlockReference::desc())) {
+		pObject->close();
+		pObject = nullptr;
+		return;
+	}
+
+	return;
+}
+
+//---
 ExtensionDict::ExtensionDict() {
 	AcDbObjectId objectId;
 	AcDbObject* pObject;
@@ -343,36 +374,10 @@ EmployeeDict::EmployeeDict(AcDbDictionary* pExtDict, const TCHAR* strDictName) {
 }
 
 //---
-void GetRefObject(AcDbObject*& pObject, AcDb::OpenMode mode) {
-	ads_name entytiName;
-	ads_point entityPoint;
-
-	if (acedEntSel(L"Select employee: ", entytiName, entityPoint) != RTNORM) {
-		return;
-	}
-
-	AcDbObjectId objectID;
-	if (acdbGetObjectId(objectID, entytiName) != Acad::eOk) {
-		return;
-	}
-
-	if (acdbOpenAcDbObject(pObject, objectID, mode) != Acad::eOk) {
-		return;
-	}
-
-	if (!pObject->isKindOf(AcDbBlockReference::desc())) {
-		pObject->close();
-		return;
-	}
-
-	return;
-}
-
 void AddDetails(const TCHAR* strDictName, const TCHAR* strRecordName) {
 
 	EmployeeDict dict(strDictName);
 	AcDbDictionary* pEmplDict = dict.Get(AcDb::kForWrite);
-
 	if (!pEmplDict) {
 		return;
 	}
@@ -395,7 +400,6 @@ void AddDetails(const TCHAR* strDictName, const TCHAR* strRecordName) {
 	acutPrintf(L"\nEvents: Create record to employee dictionary");
 	upEmpDet->close();
 	upEmpDet.release();
-
 }
 
 void RemoveDetails(const TCHAR* strDictName, const TCHAR* strRecordName) {
@@ -427,9 +431,7 @@ void RemoveDetails(const TCHAR* strDictName, const TCHAR* strRecordName) {
 	}
 
 	AcDbObject* pObj;
-	Acad::ErrorStatus es;
-
-	if ((es = acdbOpenAcDbObject(pObj, objId, AcDb::kForWrite)) != Acad::eOk) {
+	if (acdbOpenAcDbObject(pObj, objId, AcDb::kForWrite) != Acad::eOk) {
 		acutPrintf(L"\nWarning: Can't to open the object detail");
 		return;
 	}
@@ -451,8 +453,7 @@ void RemoveDetails(const TCHAR* strDictName, const TCHAR* strRecordName) {
 void ListDetails(const TCHAR* strDictName, const TCHAR* strRecordName) {
 
 	EmployeeDict dict(strDictName);
-	AcDbDictionary* pEmplDict = dict.Get();
-
+	AcDbDictionary* pEmplDict = dict.Get(AcDb::kForRead);
 	if (!pEmplDict) {
 		return;
 	}

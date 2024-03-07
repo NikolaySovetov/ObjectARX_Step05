@@ -60,8 +60,6 @@ public:
 	EmployeeDict(AcDbDictionary* pExtDict, const TCHAR* strDictName);
 };
 
-void GetRefObject(AcDbObject*& pObject, AcDb::OpenMode mode);
-
 void AddDetails(const TCHAR* strDictName, const TCHAR* strRecordName);
 void RemoveDetails(const TCHAR* strDictName, const TCHAR* strRecordName);
 void ListDetails(const TCHAR* strDictName, const TCHAR* strRecordName);
