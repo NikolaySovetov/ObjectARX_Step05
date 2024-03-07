@@ -101,7 +101,6 @@ public:
 	static void Step05_listDetail() {
 		ListDetails(L"EMPLOYEE_DICTIONARY", L"DETAILS");
 	}
-
 };
 
 //-----------------------------------------------------------------------------
