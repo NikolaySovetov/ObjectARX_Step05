@@ -51,18 +51,20 @@ public:
 class ExtensionDict : public Dictionary {
 public:
 	ExtensionDict();
+	ExtensionDict(AcDbObject*& pObject);
 };
 
 class EmployeeDict : public Dictionary {
 public:
-	EmployeeDict(const TCHAR* strDictName = L"EMPLOYEE_DICTIONARY");
+	EmployeeDict(const TCHAR* strDictName);
+	EmployeeDict(AcDbDictionary* pExtDict, const TCHAR* strDictName);
 };
 
-bool GetRefObject(AcDbObject*& pObject, AcDb::OpenMode mode);
+void GetRefObject(AcDbObject*& pObject, AcDb::OpenMode mode);
 
-void AddDetails(const TCHAR* strRecordName);
-void RemoveDetails(const TCHAR* strRecordName);
-void ListDetails(const TCHAR* strRecordName);
+void AddDetails(const TCHAR* strDictName, const TCHAR* strRecordName);
+void RemoveDetails(const TCHAR* strDictName, const TCHAR* strRecordName);
+void ListDetails(const TCHAR* strDictName, const TCHAR* strRecordName);
 
 
 

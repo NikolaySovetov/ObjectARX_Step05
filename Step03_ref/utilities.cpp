@@ -235,11 +235,13 @@ Dictionary::~Dictionary() {
 	}
 }
 
+//---
 ExtensionDict::ExtensionDict() {
 	AcDbObjectId objectId;
 	AcDbObject* pObject;
 
-	if (!GetRefObject(pObject, AcDb::kForWrite)) {
+	GetRefObject(pObject, AcDb::kForWrite);
+	if (!pObject) {
 		acutPrintf(L"\nError: Can't get reference object");
 		return;
 	}
@@ -257,8 +259,37 @@ ExtensionDict::ExtensionDict() {
 	}
 	pObject->close();
 
-	if (acdbOpenAcDbObject((AcDbObject*&)m_pDictionary, objectId,
-		AcDb::kForWrite, Adesk::kFalse) != Acad::eOk) {
+	Acad::ErrorStatus es = acdbOpenAcDbObject((AcDbObject*&)m_pDictionary, objectId,
+		AcDb::kForWrite, Adesk::kTrue);
+
+	if (es != Acad::eOk) {
+		throw std::runtime_error("Can't open extension dictionary");
+	}
+
+	if (m_pDictionary->isErased())
+		m_pDictionary->erase(Adesk::kFalse);
+}
+
+ExtensionDict::ExtensionDict(AcDbObject*& pObject) {
+	AcDbObjectId objectId;
+
+	// Create Extension Dictionary for referense object if it not already
+	objectId = pObject->extensionDictionary();
+	if (objectId == AcDbObjectId::kNull) {
+		if (pObject->createExtensionDictionary() != Acad::eOk) {
+			pObject->close();
+			acutPrintf(L"\nError: Can't create extension dictionary");
+			return;
+		}
+		objectId = pObject->extensionDictionary();
+		acutPrintf(L"\nEvent: Create extension dictionary");
+	}
+	pObject->close();
+
+	Acad::ErrorStatus es = acdbOpenAcDbObject((AcDbObject*&)m_pDictionary, objectId,
+		AcDb::kForWrite, Adesk::kTrue);
+
+	if (es != Acad::eOk) {
 		throw std::runtime_error("Can't open extension dictionary");
 	}
 
@@ -292,43 +323,62 @@ EmployeeDict::EmployeeDict(const TCHAR* strDictName) {
 	}
 }
 
-//----------------------------------------------
-bool GetRefObject(AcDbObject*& pObject, AcDb::OpenMode mode) {
+EmployeeDict::EmployeeDict(AcDbDictionary* pExtDict, const TCHAR* strDictName) {
+
+	Acad::ErrorStatus error = pExtDict->getAt(strDictName, m_pDictionary);
+
+	if (error == Acad::eKeyNotFound) {
+		AcDbObjectId objId;
+		std::unique_ptr<AcDbDictionary> upEmployeeDict = std::make_unique<AcDbDictionary>();
+		pExtDict->upgradeOpen();
+		if (pExtDict->setAt(strDictName, upEmployeeDict.get(), objId)
+			!= Acad::eOk) {
+			acutPrintf(_T("\nError: Can't create %s"), strDictName);
+			return;
+		}
+		m_pDictionary = upEmployeeDict.get();
+		upEmployeeDict.release();
+		acutPrintf(_T("\nEvent: Created %s"), strDictName);
+	}
+}
+
+//---
+void GetRefObject(AcDbObject*& pObject, AcDb::OpenMode mode) {
 	ads_name entytiName;
 	ads_point entityPoint;
 
 	if (acedEntSel(L"Select employee: ", entytiName, entityPoint) != RTNORM) {
-		return false;
+		return;
 	}
 
 	AcDbObjectId objectID;
 	if (acdbGetObjectId(objectID, entytiName) != Acad::eOk) {
-		return false;
+		return;
 	}
 
 	if (acdbOpenAcDbObject(pObject, objectID, mode) != Acad::eOk) {
-		return false;
+		return;
 	}
 
 	if (!pObject->isKindOf(AcDbBlockReference::desc())) {
 		pObject->close();
-		return false;
+		return;
 	}
 
-	return true;
+	return;
 }
 
-void AddDetails(const TCHAR* strRecordName) {
+void AddDetails(const TCHAR* strDictName, const TCHAR* strRecordName) {
 
-	EmployeeDict dict;
-	AcDbDictionary* pDict = dict.Get(AcDb::kForWrite);
+	EmployeeDict dict(strDictName);
+	AcDbDictionary* pEmplDict = dict.Get(AcDb::kForWrite);
 
-	if (!pDict) {
+	if (!pEmplDict) {
 		return;
 	}
 
 	AcDbObjectId objId;
-	if (pDict->getAt(strRecordName, objId) == Acad::eOk) {
+	if (pEmplDict->getAt(strRecordName, objId) == Acad::eOk) {
 		acutPrintf(L"\nEvent: Details already assign to that 'Employee' object.");
 		return;
 	}
@@ -337,7 +387,7 @@ void AddDetails(const TCHAR* strRecordName) {
 
 	upEmpDet = std::make_unique<EmployeeDetails>(101, 102, L"firsName", L"lastName");
 
-	if (pDict->setAt(strRecordName, upEmpDet.get(), objId) != Acad::eOk) {
+	if (pEmplDict->setAt(strRecordName, upEmpDet.get(), objId) != Acad::eOk) {
 		acutPrintf(L"\nError: Can't set record to employee dictionary");
 		return;
 	}
@@ -348,17 +398,30 @@ void AddDetails(const TCHAR* strRecordName) {
 
 }
 
-void RemoveDetails(const TCHAR* strRecordName) {
+void RemoveDetails(const TCHAR* strDictName, const TCHAR* strRecordName) {
 
-	EmployeeDict dict;
-	AcDbDictionary* pDict = dict.Get(AcDb::kForWrite);
+	AcDbObject* pObject;
+	
+	GetRefObject(pObject, AcDb::kForWrite);
+	if (!pObject) {
+		acutPrintf(L"\nError: Can't get reference object");
+		return;
+	}
 
-	if (!pDict) {
+	ExtensionDict extDict(pObject);
+	AcDbDictionary* pExtDict = extDict.Get(AcDb::kForWrite);
+	if (!pExtDict) {
+		return;
+	}
+	
+	EmployeeDict dict(pExtDict, strDictName);
+	AcDbDictionary* pEmplDict = dict.Get(AcDb::kForWrite);
+	if (!pEmplDict) {
 		return;
 	}
 
 	AcDbObjectId objId;
-	if (pDict->getAt(strRecordName, objId) == Acad::eKeyNotFound) {
+	if (pEmplDict->getAt(strRecordName, objId) == Acad::eKeyNotFound) {
 		acutPrintf(L"\nWarning: No details assigned to that object");
 		return;
 	}
@@ -374,23 +437,28 @@ void RemoveDetails(const TCHAR* strRecordName) {
 	pObj->erase();
 	pObj->close();
 
-	if (pDict->numEntries() == 0) {
-		pDict->erase();
+	if (pEmplDict->numEntries() == 0) {
+		pEmplDict->erase();
 	}
+
+	if (pExtDict->numEntries() == 0) {
+		pExtDict->erase();
+	}
+
 	acutPrintf(L"\nEvent: Detail was removed");
 }
 
-void ListDetails(const TCHAR* strRecordName) {
+void ListDetails(const TCHAR* strDictName, const TCHAR* strRecordName) {
 
-	EmployeeDict dict;
-	AcDbDictionary* pDict = dict.Get();
+	EmployeeDict dict(strDictName);
+	AcDbDictionary* pEmplDict = dict.Get();
 
-	if (!pDict) {
+	if (!pEmplDict) {
 		return;
 	}
 
 	AcDbObjectId objId;
-	if (pDict->getAt(strRecordName, objId) == Acad::eKeyNotFound) {
+	if (pEmplDict->getAt(strRecordName, objId) == Acad::eKeyNotFound) {
 		acutPrintf(L"\nWarning: No details assigned to that object");
 		return;
 	}

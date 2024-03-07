@@ -1,9 +1,6 @@
 #include "StdAfx.h"
 #include "resource.h"
 #include "utilities.h"
-//#include "EmployeeDetails.h"
-
-//#pragma comment (lib ,"EmployeeDetailsProj.lib")
 
 //-----------------------------------------------------------------------------
 #define szRDS _RXST("")
@@ -93,23 +90,16 @@ public:
 		}
 	}
 
-	static void Step05_createDictionary() {
-
-	}
-
 	static void Step05_addDetail() {
-
-		AddDetails(L"DETAILS");
+		AddDetails(L"EMPLOYEE_DICTIONARY", L"DETAILS");
 	}
 
 	static void Step05_removeDetail() {
-
-		RemoveDetails(L"DETAILS");
+		RemoveDetails(L"EMPLOYEE_DICTIONARY", L"DETAILS");
 	}
 
 	static void Step05_listDetail() {
-
-		ListDetails(L"DETAILS");
+		ListDetails(L"EMPLOYEE_DICTIONARY", L"DETAILS");
 	}
 
 };
