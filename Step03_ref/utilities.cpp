@@ -247,7 +247,7 @@ ExtensionDict::ExtensionDict() {
 	pObject->close();
 
 	if (acdbOpenAcDbObject((AcDbObject*&)m_pDictionary, objectId,
-		AcDb::kForWrite, Adesk::kTrue) != Acad::eOk) {
+		AcDb::kForWrite, Adesk::kFalse) != Acad::eOk) {
 		throw std::runtime_error("Can't open extension dictionary");
 	}
 
@@ -267,7 +267,7 @@ ExtensionDict::~ExtensionDict() {
 }
 
 //---
-EmployeeDict::EmployeeDict() {
+EmployeeDict::EmployeeDict(const TCHAR* strDictName) {
 
 	ExtensionDict ed;
 	AcDbDictionary* pExtDict;
@@ -275,20 +275,20 @@ EmployeeDict::EmployeeDict() {
 		return;
 	}
 
-	Acad::ErrorStatus error = pExtDict->getAt(L"EMPLOYEE_DICTIONARY", m_pDictionary);
+	Acad::ErrorStatus error = pExtDict->getAt(strDictName, m_pDictionary);
 
 	if (error == Acad::eKeyNotFound) {
 		AcDbObjectId objId;
 		std::unique_ptr<AcDbDictionary> upEmployeeDict = std::make_unique<AcDbDictionary>();
 		pExtDict->upgradeOpen();
-		if (pExtDict->setAt(_T("EMPLOYEE_DICTIONARY"), upEmployeeDict.get(), objId)
+		if (pExtDict->setAt(strDictName, upEmployeeDict.get(), objId)
 			!= Acad::eOk) {
-			acutPrintf(L"\nError: Can't create EMPLOYEE_DICTIONARY");
+			acutPrintf(_T("\nError: Can't create %s"), strDictName);
 			return;
 		}
 		m_pDictionary = upEmployeeDict.get();
 		upEmployeeDict.release();
-		acutPrintf(L"\nEvent: Created EMPLOYEE_DICTIONARY");
+		acutPrintf(_T("\nEvent: Created %s"), strDictName);
 	}
 }
 
@@ -304,25 +304,25 @@ EmployeeDict::~EmployeeDict() {
 }
 
 void EmployeeDict::CreateRecord(const TCHAR* strRecordName) {
-	
-	AcDbObjectId objId;
-	if (m_pDictionary->getAt(_T("DETAILS"), objId) == Acad::eOk) { 
-		acutPrintf(L"\nEvent: Details already assign to that 'Employee' object.");
+
+	if (!m_pDictionary) {
 		return;
 	}
-
-	if (m_pDictionary->upgradeOpen() != Acad::eOk) {
-		acutPrintf(L"\nError: Can't open employee dictionary");
+	
+	AcDbObjectId objId;
+	if (m_pDictionary->getAt(strRecordName, objId) == Acad::eOk) {
+		acutPrintf(L"\nEvent: Details already assign to that 'Employee' object.");
 		return;
 	}
 
 	std::unique_ptr<EmployeeDetails> upEmpDet;
 
-	//upEmpDet = std::make_unique<EmployeeDetails>(101, 102, L"firsName", L"lastName");
-	//if (m_pDictionary->setAt(strRecordName, upEmpDet.get(), objId) != Acad::eOk) {
-	//	acutPrintf(L"\nError: Can't set record to employee dictionary");
-	//	return;
-	//}
+	upEmpDet = std::make_unique<EmployeeDetails>(101, 102, L"firsName", L"lastName");
+
+	if (m_pDictionary->setAt(strRecordName, upEmpDet.get(), objId) != Acad::eOk) {
+		acutPrintf(L"\nError: Can't set record to employee dictionary");
+		return;
+	}
 
 	acutPrintf(L"\nEvents: Create record to employee dictionary");
 	upEmpDet.release();

@@ -29,10 +29,10 @@
 //-----------------------------------------------------------------------------
 class DLLIMPEXP EmployeeDetails : public AcDbObject {
 private:
-	Adesk::Int32 m_nID;
-	Adesk::Int32 m_nCube;
-	TCHAR* m_strFirstName;
-	TCHAR* m_strLastName;
+	Adesk::Int32 m_nID{};
+	Adesk::Int32 m_nCube{};
+	TCHAR* m_strFirstName{};
+	TCHAR* m_strLastName{};
 
 public:
 	ACRX_DECLARE_MEMBERS(EmployeeDetails) ;

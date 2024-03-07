@@ -56,7 +56,7 @@ public:
 
 class EmployeeDict : public Dictionary {
 public:
-	EmployeeDict();
+	EmployeeDict(const TCHAR* strDictName = L"EMPLOYEE_DICTIONARY");
 	~EmployeeDict();
 	void CreateRecord(const TCHAR* strRecordName);
 	void EraseRecord(const TCHAR* strRecordName);
