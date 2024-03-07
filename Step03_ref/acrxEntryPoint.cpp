@@ -99,8 +99,7 @@ public:
 
 	static void Step05_adddetail() {
 
-		EmployeeDict ed;
-		ed.CreateRecord(L"DETAILS");
+		AddDetails(L"DETAILS");
 	}
 
 

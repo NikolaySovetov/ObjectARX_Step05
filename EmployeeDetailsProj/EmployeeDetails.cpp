@@ -31,6 +31,12 @@ EmployeeDetails::EmployeeDetails(const Adesk::Int32 ID, const Adesk::Int32 cube,
 }
 
 EmployeeDetails::~EmployeeDetails() {
+	try	{
+		this->close();
+	}
+	catch (const std::exception&) {
+
+	}
 }
 
 //-----------------------------------------------------------------------------

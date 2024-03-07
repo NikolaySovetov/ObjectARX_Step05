@@ -303,7 +303,7 @@ EmployeeDict::~EmployeeDict() {
 	}
 }
 
-void EmployeeDict::CreateRecord(const TCHAR* strRecordName) {
+void EmployeeDict::AddDetails(const TCHAR* strRecordName) {
 
 	if (!m_pDictionary) {
 		return;
@@ -354,5 +354,31 @@ bool GetRefObject(AcDbObject*& pObject, AcDb::OpenMode mode) {
 	return true;
 }
 
+void AddDetails(const TCHAR* strRecordName) {
 
+	EmployeeDict dict;
+	AcDbDictionary* pDict = dict.Get(AcDb::kForWrite);
+
+	if (!pDict) {
+		return;
+	}
+
+	AcDbObjectId objId;
+	if (pDict->getAt(strRecordName, objId) == Acad::eOk) {
+		acutPrintf(L"\nEvent: Details already assign to that 'Employee' object.");
+		return;
+	}
+
+	std::unique_ptr<EmployeeDetails> upEmpDet;
+
+	upEmpDet = std::make_unique<EmployeeDetails>(101, 102, L"firsName", L"lastName");
+
+	if (pDict->setAt(strRecordName, upEmpDet.get(), objId) != Acad::eOk) {
+		acutPrintf(L"\nError: Can't set record to employee dictionary");
+		return;
+	}
+
+	acutPrintf(L"\nEvents: Create record to employee dictionary");
+	upEmpDet.release();
+}
 

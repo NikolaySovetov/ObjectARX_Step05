@@ -58,14 +58,14 @@ class EmployeeDict : public Dictionary {
 public:
 	EmployeeDict(const TCHAR* strDictName = L"EMPLOYEE_DICTIONARY");
 	~EmployeeDict();
-	void CreateRecord(const TCHAR* strRecordName);
-	void EraseRecord(const TCHAR* strRecordName);
-	void ListRecord(const TCHAR* strRecordName);
+	void AddDetails(const TCHAR* strRecordName);
+	void RemoveDetails(const TCHAR* strRecordName);
+	void ListDetails(const TCHAR* strRecordName);
 };
 
 bool GetRefObject(AcDbObject*& pObject, AcDb::OpenMode mode);
 
-
+void AddDetails(const TCHAR* strRecordName);
 
 
 

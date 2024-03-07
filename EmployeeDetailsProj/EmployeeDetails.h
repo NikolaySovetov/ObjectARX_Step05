@@ -68,6 +68,7 @@ public:
 
 } ;
 
+
 #ifdef EMPLOYEEDETAILSPROJ_MODULE
 ACDB_REGISTER_OBJECT_ENTRY_AUTO(EmployeeDetails)
 #endif
